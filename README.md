@@ -1,11 +1,38 @@
-# Inventario API — GA7-220501096-AA5-EV03 y EV01
+# Inventario API — GA7-220501096-AA5-EV03, EV01 y EV04
 
 Servicios web REST desarrollados en **Java 17 + Spring Boot 3** como evidencias
-del proyecto *"Diseño y desarrollo de servicios web"*. El proyecto cubre dos
+del proyecto *"Diseño y desarrollo de servicios web"*. El proyecto cubre tres
 evidencias de la misma actividad de aprendizaje (GA7-220501096-AA5):
 
 - **EV03**: gestión de inventario/productos (CRUD completo).
 - **EV01**: servicios de registro e inicio de sesión de usuarios.
+- **EV04**: pruebas con Postman y documentación de la API.
+
+## Cómo se cubre cada criterio de la evaluación — EV04 (Pruebas y documentación)
+
+| # | Criterio | Cómo se cumple en este proyecto |
+|---|----------|----------------------------------|
+| 1 | Crea servicios web para métodos reutilizables | Mismos servicios de EV03 y EV01, ahora con documentación Swagger/OpenAPI (`@Operation`, `@ApiResponse`) que describe cada método reutilizable. |
+| 2 | Realiza el test de las API's utilizando Postman | Colección `postman/Inventario-API.postman_collection.json`, con casos exitosos y de error para cada endpoint. |
+| 3 | Realiza la documentación de las API's | Documento `Documentacion-API.docx` con la descripción de cada endpoint, modelos, ejemplos de petición/respuesta y validaciones; además, documentación interactiva en vivo vía Swagger UI. |
+
+### Documentación interactiva (Swagger UI)
+
+Con el proyecto corriendo, abre en el navegador:
+```
+http://localhost:8080/swagger-ui.html
+```
+Ahí puedes ver y probar cada endpoint directamente desde el navegador.
+
+### Pruebas con Postman
+
+1. Abre Postman → **Import** → selecciona `postman/Inventario-API.postman_collection.json`.
+2. La colección trae dos carpetas: **Productos** y **Autenticacion**, cada una con peticiones de casos exitosos y de casos que deben fallar a propósito (para comprobar las validaciones).
+3. Asegúrate de tener el proyecto corriendo en `http://localhost:8080` antes de probar.
+
+### Documentación formal
+
+El archivo `Documentacion-API.docx` (en la raíz del proyecto) describe en detalle cada endpoint, el modelo de datos, ejemplos de petición/respuesta, las reglas de validación y cómo usar la colección de Postman.
 
 ## Cómo se cubre cada criterio de la evaluación — EV03 (Inventario)
 
