@@ -1,10 +1,13 @@
-# Inventario API — GA7-220501096-AA5-EV03
+# Inventario API — GA7-220501096-AA5-EV03 y EV01
 
-Servicios web REST para la **gestión de inventario/productos**, desarrollados en
-**Java 17 + Spring Boot 3** como evidencia del proyecto *"Diseño y desarrollo de
-servicios web"*.
+Servicios web REST desarrollados en **Java 17 + Spring Boot 3** como evidencias
+del proyecto *"Diseño y desarrollo de servicios web"*. El proyecto cubre dos
+evidencias de la misma actividad de aprendizaje (GA7-220501096-AA5):
 
-## Cómo se cubre cada criterio de la evaluación
+- **EV03**: gestión de inventario/productos (CRUD completo).
+- **EV01**: servicios de registro e inicio de sesión de usuarios.
+
+## Cómo se cubre cada criterio de la evaluación — EV03 (Inventario)
 
 | # | Criterio | Cómo se cumple en este proyecto |
 |---|----------|----------------------------------|
@@ -12,6 +15,70 @@ servicios web"*.
 | 2 | Realiza API REST según necesidades del proyecto | `ProductoController`: endpoints CRUD + búsquedas + reportes bajo `/api/productos`, usando verbos HTTP correctos (GET, POST, PUT, PATCH, DELETE) y códigos de estado adecuados. |
 | 3 | Realiza las validaciones correctamente | Bean Validation (`@NotBlank`, `@DecimalMin`, `@Min`, `@Pattern`, etc.) en `Producto`, activadas con `@Valid` en el controlador, más reglas de negocio (SKU duplicado, stock negativo) y un `GlobalExceptionHandler` que devuelve errores estructurados (JSON) con código HTTP correcto. |
 | 4 | Utiliza herramientas de versionamiento | Repositorio Git inicializado con commits incrementales por capa (estructura → repositorio/errores → servicio → controlador → documentación). Ver `git log`. |
+
+## Cómo se cubre cada criterio de la evaluación — EV01 (Registro y Login)
+
+| # | Criterio | Cómo se cumple en este proyecto |
+|---|----------|----------------------------------|
+| 1 | Servicio para registro | `AuthService.registrar()` / endpoint `POST /api/auth/registro`: crea un usuario nuevo, validando que el correo y el nombre de usuario no existan ya, y guarda la contraseña **encriptada** (nunca en texto plano). |
+| 2 | Servicio para inicio de sesión | `AuthService.iniciarSesion()` / endpoint `POST /api/auth/login`: valida las credenciales comparando el hash de la contraseña, sin revelar si el error fue el correo o la contraseña (buena práctica de seguridad). |
+| 3 | Validaciones correctas | `RegistroRequest` y `LoginRequest` usan Bean Validation (`@NotBlank`, `@Email`, `@Size`, `@Pattern` para exigir letras+números en la contraseña). Los errores de negocio (correo/usuario duplicado, credenciales inválidas) se manejan con el mismo `GlobalExceptionHandler`. |
+| 4 | Herramientas de versionamiento | Mismos commits incrementales de Git, con el prefijo `feat(auth):` para diferenciarlos de los de inventario. Ver `git log`. |
+
+### Endpoints de autenticación
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/auth/registro` | Crea una cuenta nueva |
+| POST | `/api/auth/login` | Valida credenciales e inicia sesión |
+
+#### Ejemplo de registro (POST /api/auth/registro)
+
+```json
+{
+  "nombreUsuario": "roberto123",
+  "correo": "roberto@correo.com",
+  "contrasena": "Clave2026segura"
+}
+```
+
+Respuesta (201 Created):
+```json
+{
+  "id": 1,
+  "nombreUsuario": "roberto123",
+  "correo": "roberto@correo.com",
+  "mensaje": "Usuario registrado exitosamente"
+}
+```
+
+#### Ejemplo de login (POST /api/auth/login)
+
+```json
+{
+  "correo": "roberto@correo.com",
+  "contrasena": "Clave2026segura"
+}
+```
+
+Respuesta si las credenciales son correctas (200 OK):
+```json
+{
+  "id": 1,
+  "nombreUsuario": "roberto123",
+  "correo": "roberto@correo.com",
+  "mensaje": "Inicio de sesion exitoso"
+}
+```
+
+Respuesta si son incorrectas (409 Conflict):
+```json
+{
+  "estado": 409,
+  "error": "Regla de negocio violada",
+  "mensajes": ["Correo o contrasena incorrectos"]
+}
+```
 
 ## Estructura del proyecto
 
