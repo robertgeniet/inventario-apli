@@ -2,6 +2,10 @@ package com.sena.inventario.controller;
 
 import com.sena.inventario.model.Producto;
 import com.sena.inventario.service.ProductoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +21,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/productos")
+@Tag(name = "Productos", description = "Gestion del inventario: crear, consultar, actualizar y eliminar productos")
 public class ProductoController {
 
     private final ProductoService productoService;
@@ -25,62 +30,80 @@ public class ProductoController {
         this.productoService = productoService;
     }
 
-    // GET /api/productos -> lista completa
+    @Operation(summary = "Lista todos los productos del inventario")
+    @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente")
     @GetMapping
     public ResponseEntity<List<Producto>> listarTodos() {
         return ResponseEntity.ok(productoService.listarTodos());
     }
 
-    // GET /api/productos/{id} -> obtiene uno por id
+    @Operation(summary = "Obtiene un producto por su id")
+    @ApiResponse(responseCode = "200", description = "Producto encontrado")
+    @ApiResponse(responseCode = "404", description = "No existe un producto con ese id")
     @GetMapping("/{id}")
-    public ResponseEntity<Producto> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<Producto> obtenerPorId(@Parameter(description = "Id del producto") @PathVariable Long id) {
         return ResponseEntity.ok(productoService.obtenerPorId(id));
     }
 
-    // GET /api/productos/categoria/{categoria}
+    @Operation(summary = "Filtra productos por categoria")
     @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<Producto>> buscarPorCategoria(@PathVariable String categoria) {
+    public ResponseEntity<List<Producto>> buscarPorCategoria(
+            @Parameter(description = "Nombre de la categoria") @PathVariable String categoria) {
         return ResponseEntity.ok(productoService.buscarPorCategoria(categoria));
     }
 
-    // GET /api/productos/buscar?nombre=xxx
+    @Operation(summary = "Busca productos cuyo nombre contenga el texto dado")
     @GetMapping("/buscar")
-    public ResponseEntity<List<Producto>> buscarPorNombre(@RequestParam String nombre) {
+    public ResponseEntity<List<Producto>> buscarPorNombre(
+            @Parameter(description = "Texto a buscar en el nombre") @RequestParam String nombre) {
         return ResponseEntity.ok(productoService.buscarPorNombre(nombre));
     }
 
-    // GET /api/productos/stock-bajo?umbral=5
+    @Operation(summary = "Lista productos con stock igual o menor al umbral indicado")
     @GetMapping("/stock-bajo")
-    public ResponseEntity<List<Producto>> stockBajo(@RequestParam(defaultValue = "5") Integer umbral) {
+    public ResponseEntity<List<Producto>> stockBajo(
+            @Parameter(description = "Umbral de stock bajo, por defecto 5")
+            @RequestParam(defaultValue = "5") Integer umbral) {
         return ResponseEntity.ok(productoService.listarConStockBajo(umbral));
     }
 
-    // GET /api/productos/valor-total -> valor monetario total del inventario
+    @Operation(summary = "Calcula el valor monetario total del inventario (precio x cantidad de cada producto)")
     @GetMapping("/valor-total")
     public ResponseEntity<Map<String, BigDecimal>> valorTotalInventario() {
         return ResponseEntity.ok(Map.of("valorTotalInventario", productoService.calcularValorTotalInventario()));
     }
 
-    // POST /api/productos -> crea un producto (con validacion @Valid)
+    @Operation(summary = "Crea un producto nuevo",
+            description = "Valida los datos (nombre, precio, stock, SKU) antes de guardar. "
+                    + "El SKU debe ser unico en todo el inventario.")
+    @ApiResponse(responseCode = "201", description = "Producto creado")
+    @ApiResponse(responseCode = "400", description = "Datos invalidos (ver mensajes de validacion)")
+    @ApiResponse(responseCode = "409", description = "El SKU ya existe")
     @PostMapping
     public ResponseEntity<Producto> crear(@Valid @RequestBody Producto producto) {
         Producto creado = productoService.crear(producto);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
-    // PUT /api/productos/{id} -> actualiza un producto existente
+    @Operation(summary = "Actualiza todos los datos de un producto existente")
+    @ApiResponse(responseCode = "200", description = "Producto actualizado")
+    @ApiResponse(responseCode = "404", description = "No existe un producto con ese id")
     @PutMapping("/{id}")
     public ResponseEntity<Producto> actualizar(@PathVariable Long id, @Valid @RequestBody Producto producto) {
         return ResponseEntity.ok(productoService.actualizar(id, producto));
     }
 
-    // PATCH /api/productos/{id}/stock?cantidad=10  (positivo suma, negativo resta)
+    @Operation(summary = "Ajusta el stock de un producto",
+            description = "Un valor positivo suma stock, un valor negativo lo resta. "
+                    + "No permite dejar el stock en negativo.")
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<Producto> ajustarStock(@PathVariable Long id, @RequestParam Integer cantidad) {
+    public ResponseEntity<Producto> ajustarStock(@PathVariable Long id,
+            @Parameter(description = "Cantidad a sumar (positivo) o restar (negativo)") @RequestParam Integer cantidad) {
         return ResponseEntity.ok(productoService.ajustarStock(id, cantidad));
     }
 
-    // DELETE /api/productos/{id}
+    @Operation(summary = "Elimina un producto del inventario")
+    @ApiResponse(responseCode = "204", description = "Producto eliminado")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         productoService.eliminar(id);
