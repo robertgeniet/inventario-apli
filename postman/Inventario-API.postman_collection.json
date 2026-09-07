@@ -1,0 +1,276 @@
+{
+  "info": {
+    "name": "Inventario API - GA7-220501096-AA5",
+    "description": "Coleccion de pruebas para los servicios web REST del proyecto: gestion de inventario/productos y autenticacion (registro/login). Incluye casos exitosos y casos de error para validar las validaciones de la API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "productoId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "Listar todos los productos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"]
+            }
+          }
+        },
+        {
+          "name": "Obtener producto por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{productoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "{{productoId}}"]
+            }
+          }
+        },
+        {
+          "name": "Buscar por categoria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/categoria/Perifericos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "categoria", "Perifericos"]
+            }
+          }
+        },
+        {
+          "name": "Buscar por nombre",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/buscar?nombre=mouse",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "buscar"],
+              "query": [{ "key": "nombre", "value": "mouse" }]
+            }
+          }
+        },
+        {
+          "name": "Productos con stock bajo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/stock-bajo?umbral=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "stock-bajo"],
+              "query": [{ "key": "umbral", "value": "5" }]
+            }
+          }
+        },
+        {
+          "name": "Valor total del inventario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/valor-total",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "valor-total"]
+            }
+          }
+        },
+        {
+          "name": "Crear producto (exitoso)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Silla ergonomica\",\n  \"descripcion\": \"Silla de oficina con soporte lumbar\",\n  \"categoria\": \"Mobiliario\",\n  \"precio\": 459900.00,\n  \"cantidadStock\": 12,\n  \"sku\": \"SIL-004\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"]
+            }
+          }
+        },
+        {
+          "name": "Crear producto (falla validacion)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\",\n  \"categoria\": \"\",\n  \"precio\": -10,\n  \"cantidadStock\": -5,\n  \"sku\": \"x\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos"]
+            },
+            "description": "Debe responder 400 con la lista de mensajes de validacion (nombre obligatorio, precio > 0, SKU con formato invalido, etc.)"
+          }
+        },
+        {
+          "name": "Actualizar producto",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Teclado mecanico\",\n  \"descripcion\": \"Teclado mecanico retroiluminado - edicion RGB\",\n  \"categoria\": \"Perifericos\",\n  \"precio\": 199900.00,\n  \"cantidadStock\": 30,\n  \"sku\": \"TEC-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{productoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "{{productoId}}"]
+            }
+          }
+        },
+        {
+          "name": "Ajustar stock (sumar)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{productoId}}/stock?cantidad=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "{{productoId}}", "stock"],
+              "query": [{ "key": "cantidad", "value": "10" }]
+            }
+          }
+        },
+        {
+          "name": "Ajustar stock (restar mas de lo disponible - falla)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{productoId}}/stock?cantidad=-99999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "{{productoId}}", "stock"],
+              "query": [{ "key": "cantidad", "value": "-99999" }]
+            },
+            "description": "Debe responder 409: la operacion dejaria el stock en negativo."
+          }
+        },
+        {
+          "name": "Eliminar producto",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/{{productoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "productos", "{{productoId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Autenticacion",
+      "item": [
+        {
+          "name": "Registro (exitoso)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreUsuario\": \"roberto123\",\n  \"correo\": \"roberto@correo.com\",\n  \"contrasena\": \"Clave2026segura\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registro"]
+            }
+          }
+        },
+        {
+          "name": "Registro (correo duplicado - falla)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreUsuario\": \"otroUsuario\",\n  \"correo\": \"roberto@correo.com\",\n  \"contrasena\": \"OtraClave123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registro"]
+            },
+            "description": "Debe responder 409: ya existe una cuenta con ese correo."
+          }
+        },
+        {
+          "name": "Registro (contrasena debil - falla validacion)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreUsuario\": \"ab\",\n  \"correo\": \"correo-invalido\",\n  \"contrasena\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registro"]
+            },
+            "description": "Debe responder 400 con varios mensajes de validacion (usuario muy corto, correo invalido, contrasena muy corta y sin letra+numero)."
+          }
+        },
+        {
+          "name": "Login (exitoso)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"roberto@correo.com\",\n  \"contrasena\": \"Clave2026segura\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login (contrasena incorrecta - falla)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"roberto@correo.com\",\n  \"contrasena\": \"claveMalisima\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Debe responder 409: correo o contrasena incorrectos."
+          }
+        }
+      ]
+    }
+  ]
+}
